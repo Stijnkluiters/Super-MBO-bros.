@@ -1,23 +1,57 @@
-var express = require("express");
+// Require express library
+var express = require('express');
+
 var app = express();
 
-/* serves main page */
-app.get("/", function(req, res) {
-    res.sendfile('index.html')
+var http = require('http');
+
+var server = http.createServer(app);
+
+var Socket_IO = require('socket.io');
+
+// Start listening for incoming connections
+app.listen(5000, function () {
+    console.log('Started server at http://localhost:8888');
+});
+var io = Socket_IO.listen(8000);
+
+app.use(express.static(__dirname + '/public'));
+
+// Else, send to the index
+app.use('/', function (req, res) {
+    res.sendFile(__dirname + '/public/index.html');
 });
 
-app.post("/user/add", function(req, res) {
-    /* some server side logic */
-    res.send("OK");
-});
+var users = new Object();
 
-/* serves all the static files */
-app.get(/^(.+)$/, function(req, res){
-    console.log('static file request : ' + req.params);
-    res.sendfile( __dirname + req.params[0]);
-});
+io.on('connection', function (socket) {
+    console.log('SERVER: connected to new client');
 
-var port = process.env.PORT || 5000;
-app.listen(port, function() {
-    console.log("Listening on " + port);
+    var socketid = socket.id;
+    console.log(socketid);
+    var username = socketid;
+    console.log(username);
+
+    users[socketid] = {username: username};
+
+    console.log('SERVER: new username: ' + users[socketid]['username']);
+
+    socket.broadcast.emit("newclient", "A new client has connected: " + users[socketid]['username'])
+
+    socket.on('messagetoserver', function(inputMessage) {
+        console.log(inputMessage)
+        io.sockets.emit('toclient', {'user': users[socketid]['username'], 'message': inputMessage})
+    })
+
+    socket.on('client_name', function(newname) {
+
+        var oldname = users[socketid]['username']
+
+        users[socketid]['username'] = newname
+
+        console.log('SERVER: new username: ' + users[socketid]['username']);
+
+        io.sockets.emit('toclient', {'user': oldname, 'message': 'changed name to ' + users[socketid]['username']})
+    })
+
 });

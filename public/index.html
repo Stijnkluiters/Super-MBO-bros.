@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="shortcut icon" type="image/png" href="http://a4.g.akamai.net/7/1/9499/v1/defjam.download.akamai.com/9499/kanye/assets/cur/favicon_finger_32.ico"/>
+    <title>Super MBO Bros</title>
+</head>
+<body>
+<div class="receivedmessages">
+
+</div>
+
+<form>
+    <input type="text" id="input">
+    <input type="submit">
+</form>
+<br>
+name change
+<form id="name_form">
+    <input type="text" id="name_input">
+    <input type="submit">
+</form>
+
+    <script src="../node_modules/socket.io-client/socket.io.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+    <script>
+        var socket = io.connect('http://' + document.location.hostname + ':8000');
+
+        $('form').on('submit', function(e) {
+            e.preventDefault();
+
+            var messagetoserver = $('#input').val();
+            socket.emit('messagetoserver', messagetoserver);
+            $('#input').val('');
+
+        })
+
+        $('#name_form').on('submit', function (form) {
+            form.preventDefault();
+
+            socket.emit('client_name', $('#name_input').val());
+
+            $('#name_input').val('');
+        });
+
+        socket.on('toclient', function(message){
+            var text = message['user'] + ": " + message['message']
+            console.log(text)
+            pushmessage(text)
+        })
+
+        socket.on('newclient', function(message) {
+            pushmessage(message)
+        })
+
+        socket.on('connect_error', function(data){
+            console.log(data)
+        })
+
+        function pushmessage(message) {
+            $(".receivedmessages").html($(".receivedmessages").html() + message + "<br>")
+        }
+    </script>
+</body>
+</html>
