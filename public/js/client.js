@@ -2,10 +2,10 @@ var socket = io.connect('http://' + document.location.hostname + ':8000');
 
 $('#name_form').on('submit', function (form) {
     form.preventDefault();
-
-    socket.emit('client_name', $('#name_input').val());
-
-    $('#name_input').val('');
+    if ($('#name_input').val() != '') {
+        socket.emit('client_name', $('#name_input').val());
+        $('.center').css('display','none');
+    }
 });
 
 socket.on('toclient', function(message){

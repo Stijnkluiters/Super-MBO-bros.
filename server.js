@@ -29,7 +29,7 @@ io.on('connection', function (socket) {
 
     var socketid = socket.id;
     console.log(socketid);
-    var username = socketid;
+    var username = 'Guest';
     console.log(username);
 
     users[socketid] = {username: username};
