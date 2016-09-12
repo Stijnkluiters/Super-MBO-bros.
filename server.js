@@ -36,18 +36,13 @@ io.on('connection', function (socket) {
 
     console.log('SERVER: new username: ' + users[socketid]['username']);
 
-    socket.broadcast.emit("newclient", "A new client has connected: " + users[socketid]['username'])
-
-    socket.on('messagetoserver', function(inputMessage) {
-        console.log(inputMessage)
-        io.sockets.emit('toclient', {'user': users[socketid]['username'], 'message': inputMessage})
-    })
+    socket.broadcast.emit("newclient", "A new client has connected: " + users[socketid]['username']);
 
     socket.on('client_name', function(newname) {
 
-        var oldname = users[socketid]['username']
+        var oldname = users[socketid]['username'];
 
-        users[socketid]['username'] = newname
+        users[socketid]['username'] = newname;
 
         console.log('SERVER: new username: ' + users[socketid]['username']);
 
